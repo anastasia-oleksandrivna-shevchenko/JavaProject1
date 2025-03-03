@@ -37,12 +37,25 @@ public class CategoryManager {
         }
     }
 
-    private void addCategory(Category category) {
-        categories.add(category);
-        saveCategories();
+    private boolean isCategoryIdExists(int id) {
+        for (Category category : categories) {
+            if (category.getId() == id) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private void updateCategory (int id, String newName){
+    public void addCategory(Category category) {
+        if (isCategoryIdExists(category.getId())) {
+            System.out.println("Category with this ID already exists.");
+        } else {
+            categories.add(category);
+            saveCategories();
+        }
+    }
+
+    public void updateCategory (int id, String newName){
         try{
             for(Category category : categories){
                 if(category.getId() == id){
@@ -56,8 +69,11 @@ public class CategoryManager {
         }
     }
 
-    private void deleteCategory(int id){
+    public void deleteCategory(int id){
         categories.removeIf(c -> c.getId() == id);
         saveCategories();
+    }
+    public List<Category> getAllCategories() {
+        return categories;
     }
 }
