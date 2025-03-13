@@ -9,33 +9,18 @@ import java.util.List;
 import java.util.Map;
 
 public class ExpenseManager {
-    private static final String FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\expenses.json";
+    private final String FILE_PATH;
     private List<Expense> expenses;
-    private ObjectMapper objectMapper;
+    private final JsonDataSource jsonDataSource;
 
-    public ExpenseManager() {
-        objectMapper = new ObjectMapper();
-        expenses = loadExpenses();
-    }
-
-    private List<Expense> loadExpenses() {
-        try{
-            File file = new File(FILE_PATH);
-            if(file.exists()){
-                return objectMapper.readValue(file, new TypeReference<List<Expense>>() {});
-            }
-        } catch(IOException e){
-            System.out.println("Error loading file");
-        }
-        return new ArrayList<>();
+    public ExpenseManager(String FILE_PATH ,JsonDataSource jsonDataSource, List<Expense> expenses) {
+        this.FILE_PATH = FILE_PATH;
+        this.jsonDataSource = jsonDataSource;
+        this.expenses = expenses;
     }
 
     private void  saveExpenses() {
-        try{
-            objectMapper.writeValue(new File(FILE_PATH), expenses);
-        }catch(IOException e){
-            System.out.println("Error saving file");
-        }
+        jsonDataSource.saveData(FILE_PATH, expenses);
     }
 
     private boolean isExpenseIdExists(int id) {
@@ -99,13 +84,11 @@ public class ExpenseManager {
     public List<Map.Entry<Category, Double>> getCategoryStatistics(List<Category> categories) {
         Map<Category, Double> categoryTotalMap = new HashMap<>();
 
-        // Підсумовуємо витрати по кожній категорії
         for (Category category : categories) {
             double total = getTotalExpensesByCategory(category.getId());
             categoryTotalMap.put(category, total);
         }
 
-        // Перетворюємо мапу в список та сортуємо по значенню (сума витрат) в порядку спадання
         List<Map.Entry<Category, Double>> sortedCategories = new ArrayList<>(categoryTotalMap.entrySet());
         sortedCategories.sort((entry1, entry2) -> Double.compare(entry2.getValue(), entry1.getValue()));
 
@@ -115,6 +98,5 @@ public class ExpenseManager {
     public List<Expense> getAllExpenses() {
         return expenses;
     }
-
 
 }

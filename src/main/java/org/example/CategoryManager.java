@@ -7,34 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryManager {
-    private static final String FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\categories.json";
+    private final String FILE_PATH;
     private List<Category> categories;
-    private ObjectMapper objectMapper;
+    private final JsonDataSource jsonDataSource;
 
-    public CategoryManager() {
-        objectMapper = new ObjectMapper();
-        categories = loadCategories();
-    }
-
-    private List<Category> loadCategories() {
-        try
-        {
-            File file = new File(FILE_PATH);
-            if(file.exists()){
-                return objectMapper.readValue(file, new TypeReference<List<Category>>() {});
-                }
-        }catch (IOException e) {
-            System.out.println("Error loading file");
-        }
-        return new ArrayList<>();
+    public CategoryManager(String FILE_PATH,JsonDataSource jsonDataSource,  List<Category> categories) {
+        this.FILE_PATH = FILE_PATH;
+        this.jsonDataSource = jsonDataSource;
+        this.categories = categories;
     }
 
     private void saveCategories() {
-        try{
-            objectMapper.writeValue(new File(FILE_PATH), categories);
-        } catch(IOException e) {
-            System.out.println("Error saving file");
-        }
+        jsonDataSource.saveData(FILE_PATH, categories);
     }
 
     private boolean isCategoryIdExists(int id) {

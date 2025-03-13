@@ -1,127 +1,195 @@
 package org.example;
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class App 
-{
+public class App {
 
-    public static void main( String[] args )
-    {
+    private static final String CATEGORY_FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\categories.json";
+    private static final String EXPENSE_FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\expenses.json";
+
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ExpenseManager expenseManager = new ExpenseManager();
-        CategoryManager categoryManager = new CategoryManager();
+        JsonDataSource jsonDataSource = JsonDataSource.getInstance();
 
-        while(true){
+        List<Category> categories = jsonDataSource.loadData(CATEGORY_FILE_PATH, new TypeReference<List<Category>>(){});
+        List<Expense> expenses = jsonDataSource.loadData(EXPENSE_FILE_PATH, new  TypeReference<List<Expense>>(){});
 
-            System.out.println("\nMenu:");
-            System.out.println("1. Add category");
-            System.out.println("2. View categories");
-            System.out.println("3. Add expense");
-            System.out.println("4. View expenses");
-            System.out.println("5. Update category");
-            System.out.println("6. Delete category");
-            System.out.println("7. Update expense");
-            System.out.println("8. Delete expense");
-            System.out.println("9. View Expenses by Category");
-            System.out.println("10. Statistics");
-            System.out.println("11. Exit");
-            System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+        CategoryManager categoryManager = new CategoryManager(CATEGORY_FILE_PATH, jsonDataSource, categories);
+        ExpenseManager expenseManager = new ExpenseManager(EXPENSE_FILE_PATH, jsonDataSource, expenses);
 
+        while (true) {
+            System.out.println("Menu:");
+            System.out.println("Choose what you want to do:");
+            System.out.println("Enter: ADD, DELETE, VIEW, UPDATE, STATISTICS, EXIT ");
+            String input = scanner.nextLine().trim();
+            Menu choice;
+            try {
+                choice = Menu.valueOf(input.toUpperCase());
+            }catch (IllegalArgumentException e) {
+                System.out.println("Invalid option. Please try again.");
+                continue;
+            }
             switch (choice) {
-                case 1:
-                    System.out.print("Enter category ID: ");
-                    int catId = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter category name: ");
-                    String catName = scanner.nextLine();
-                    categoryManager.addCategory(new Category(catId, catName));
-                    break;
-                case 2:
-                    System.out.println("Categories: ");
-                    for (Category category : categoryManager.getAllCategories()) {
-                        System.out.println(category);
+                case ADD:
+                    System.out.println("Enter what you want to add: \nCATEGORY,EXPENSE");
+                    String inputName = scanner.nextLine().trim();
+                    WorkingWith name = WorkingWith.valueOf(inputName.toUpperCase());
+                    switch (name) {
+                        case EXPENSE:
+                            viewCategories(categoryManager);
+                            System.out.print("Enter expense ID: ");
+                            int expenseId = scanner.nextInt();
+                            scanner.nextLine();
+                            System.out.print("Enter expense description: ");
+                            String expenseDesc = scanner.nextLine().trim();
+                            System.out.print("Enter expense amount: ");
+                            double expenseAmount = scanner.nextDouble();
+                            scanner.nextLine();
+                            System.out.print("Enter category ID for the expense: ");
+                            int expenseCategoryId = scanner.nextInt();
+                            scanner.nextLine();
+                            expenseManager.addExpense(new Expense(expenseId, expenseDesc, expenseAmount, expenseCategoryId));
+                            break;
+                        case CATEGORY:
+                            System.out.print("Enter category ID: ");
+                            int categoryId = scanner.nextInt();
+                            scanner.nextLine();
+                            System.out.print("Enter category name: ");
+                            String categoryName = scanner.nextLine().trim();
+                            categoryManager.addCategory(new Category(categoryId, categoryName));
+                            break;
                     }
                     break;
-                case 3:
-                    System.out.print("Enter expense ID: ");
-                    int expId = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter expense description: ");
-                    String expDesc = scanner.nextLine();
-                    System.out.print("Enter expense amount: ");
-                    double expAmount = scanner.nextDouble();
-                    System.out.print("Enter category ID for the expense: ");
-                    int expCatId = scanner.nextInt();
-                    expenseManager.addExpense(new Expense(expId, expDesc, expAmount, expCatId));
-                    break;
-                case 4:
-                    System.out.println("Expenses: ");
-                    for (Expense expense : expenseManager.getAllExpenses()) {
-                        System.out.println(expense);
+                case UPDATE:
+                    System.out.println("Enter what you want to update: \nCATEGORY,EXPENSE");
+                    String inputUpdateName = scanner.nextLine().trim();
+                    WorkingWith updateName = WorkingWith.valueOf(inputUpdateName.toUpperCase());
+                    switch (updateName) {
+                        case EXPENSE:
+                            viewExpenses(expenseManager);
+                            System.out.print("Enter expense ID to update: ");
+                            int updateExpenseId = scanner.nextInt();
+                            scanner.nextLine();
+                            System.out.print("Enter new description: ");
+                            String newDesc = scanner.nextLine().trim();
+                            System.out.print("Enter new amount: ");
+                            double newAmount = scanner.nextDouble();
+                            scanner.nextLine();
+                            System.out.print("Enter new category ID: ");
+                            int newCategoryId = scanner.nextInt();
+                            scanner.nextLine();
+                            expenseManager.updateExpenses(updateExpenseId, newDesc, newAmount, newCategoryId);
+                            break;
+                        case CATEGORY:
+                            viewCategories(categoryManager);
+                            System.out.print("Enter category ID to update: ");
+                            int updateCategoryId = scanner.nextInt();
+                            scanner.nextLine();
+                            System.out.print("Enter new category name: ");
+                            String newCategoryName = scanner.nextLine().trim();
+                            categoryManager.updateCategory(updateCategoryId, newCategoryName);
+                            break;
+
                     }
                     break;
-                case 5:
-                    System.out.print("Enter category ID to update: ");
-                    int updateCatId = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter new category name: ");
-                    String newCatName = scanner.nextLine();
-                    categoryManager.updateCategory(updateCatId, newCatName);
-                    break;
-                case 6:
-                    System.out.print("Enter category ID to delete: ");
-                    int deleteCatId = scanner.nextInt();
-                    categoryManager.deleteCategory(deleteCatId);
-                    break;
-                case 7:
-                    System.out.print("Enter expense ID to update: ");
-                    int updateExpId = scanner.nextInt();
-                    scanner.nextLine();
-                    System.out.print("Enter new description: ");
-                    String newDesc = scanner.nextLine();
-                    System.out.print("Enter new amount: ");
-                    double newAmount = scanner.nextDouble();
-                    System.out.print("Enter new category ID: ");
-                    int newCategoryId = scanner.nextInt();
-                    expenseManager.updateExpenses(updateExpId, newDesc, newAmount, newCategoryId);
-                    break;
-                case 8:
-                    System.out.print("Enter expense ID to delete: ");
-                    int deleteExpId = scanner.nextInt();
-                    expenseManager.deleteExpenses(deleteExpId);
-                    break;
-                case 9:
-                    System.out.print("Enter category ID to view expenses: ");
-                    int selectedCategoryId = scanner.nextInt();
-                    List<Expense> expensesByCategory = expenseManager.getExpensesByCategory(selectedCategoryId);
-                    if (expensesByCategory.isEmpty()) {
-                        System.out.println("No expenses found for this category.");
-                    } else {
-                        System.out.println("Expenses in this category:");
-                        for (Expense expense : expensesByCategory) {
-                            System.out.println(expense);
-                        }
-                    }
-                    double total = expenseManager.getTotalExpensesByCategory(selectedCategoryId);
-                    System.out.println("Total expenses for this category: " + total);
-                    break;
-                case 10:
-                    List<Category> allCategories = categoryManager.getAllCategories();
-                    List<Map.Entry<Category, Double>> statistics = expenseManager.getCategoryStatistics(allCategories);
-                    System.out.println("Statistics (Categories sorted by total expenses):");
-                    for (Map.Entry<Category, Double> entry : statistics) {
-                        System.out.println("Category: " + entry.getKey().getName() + " | Total expenses: " + entry.getValue());
+                case VIEW:
+                    System.out.println("Enter what you want to view: \nCATEGORY,EXPENSE");
+                    String inputViewName = scanner.nextLine().trim();
+                    WorkingWith viewName = WorkingWith.valueOf(inputViewName.toUpperCase());
+                    switch (viewName) {
+                        case EXPENSE:
+                            System.out.println("Do you wanna view expenses by category? (yes/no)");
+                            String answer = scanner.nextLine().trim();
+                            if (answer.equalsIgnoreCase("yes")) {
+                                viewCategories(categoryManager);
+                                System.out.print("Enter category ID to view expenses: ");
+                                int selectedCategoryId = scanner.nextInt();
+                                scanner.nextLine();
+                                viewExpensesByCategory(expenseManager,  selectedCategoryId);
+                            } else {
+                                viewExpenses(expenseManager);
+                            }
+                            break;
+                        case CATEGORY:
+                            viewCategories(categoryManager);
+                            break;
                     }
                     break;
-                case 11:
+                case DELETE:
+                    System.out.println("Enter what you want to delete: \nCATEGORY,EXPENSE");
+                    String inputDeleteName = scanner.nextLine().trim();
+                    WorkingWith deleteName = WorkingWith.valueOf(inputDeleteName.toUpperCase());
+                    switch (deleteName) {
+                        case EXPENSE:
+                            viewExpenses(expenseManager);
+                            System.out.print("Enter expense ID to delete: ");
+                            int deleteExpId = scanner.nextInt();
+                            scanner.nextLine();
+                            expenseManager.deleteExpenses(deleteExpId);
+                            break;
+                        case CATEGORY:
+                            viewCategories(categoryManager);
+                            System.out.print("Enter category ID to delete: ");
+                            int deleteCatId = scanner.nextInt();
+                            scanner.nextLine();
+                            categoryManager.deleteCategory(deleteCatId);
+                            break;
+
+                    }
+                    break;
+                case STATISTICS:
+                    viewStatistics(categoryManager, expenseManager);
+                    break;
+                case EXIT:
                     System.out.println("Exiting...");
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
             }
+
+
         }
     }
+
+    public static void viewStatistics(CategoryManager categoryManager, ExpenseManager expenseManager) {
+        List<Category> allCategories = categoryManager.getAllCategories();
+        List<Map.Entry<Category, Double>> statistics = expenseManager.getCategoryStatistics(allCategories);
+        System.out.println("Statistics (Categories sorted by total expenses):");
+        for (Map.Entry<Category, Double> entry : statistics) {
+            System.out.println("Category: " + entry.getKey().getName() + " | Total expenses: " + entry.getValue());
+        }
+    }
+    public static void viewExpenses(ExpenseManager expenseManager){
+        System.out.println("Expenses: ");
+        for (Expense expense : expenseManager.getAllExpenses()) {
+            System.out.println(expense);
+        }
+    }
+    public static void viewCategories(CategoryManager categoryManager) {
+        System.out.println("Categories: ");
+        for (Category category : categoryManager.getAllCategories()) {
+            System.out.println(category);
+        }
+    }
+    public static void viewExpensesByCategory(ExpenseManager expenseManager, int selectedCategoryId) {
+
+        List<Expense> expensesByCategory = expenseManager.getExpensesByCategory(selectedCategoryId);
+        if (expensesByCategory.isEmpty()) {
+            System.out.println("No expenses found for this category.");
+        } else {
+            System.out.println("Expenses in this category:");
+            for (Expense expense : expensesByCategory) {
+                System.out.println(expense);
+            }
+        }
+        double total = expenseManager.getTotalExpensesByCategory(selectedCategoryId);
+        System.out.println("Total expenses for this category: " + total);
+    }
 }
+
+
+
+
