@@ -7,14 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryManager {
-    private final String FILE_PATH;
+    private final String FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\categories.json";
     private List<Category> categories;
     private final JsonDataSource jsonDataSource;
 
-    public CategoryManager(String FILE_PATH,JsonDataSource jsonDataSource,  List<Category> categories) {
-        this.FILE_PATH = FILE_PATH;
+    public CategoryManager(JsonDataSource jsonDataSource) {
         this.jsonDataSource = jsonDataSource;
-        this.categories = categories;
+    }
+
+    public void loadData(){
+        categories = jsonDataSource.loadData(FILE_PATH, new TypeReference<List<Category>>(){});
     }
 
     private void saveCategories() {

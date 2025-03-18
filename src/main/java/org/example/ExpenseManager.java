@@ -9,14 +9,16 @@ import java.util.List;
 import java.util.Map;
 
 public class ExpenseManager {
-    private final String FILE_PATH;
+    private final String FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\expenses.json";
     private List<Expense> expenses;
     private final JsonDataSource jsonDataSource;
 
-    public ExpenseManager(String FILE_PATH ,JsonDataSource jsonDataSource, List<Expense> expenses) {
-        this.FILE_PATH = FILE_PATH;
+    public ExpenseManager(JsonDataSource jsonDataSource) {
         this.jsonDataSource = jsonDataSource;
-        this.expenses = expenses;
+    }
+
+    public void loadData() {
+        expenses = jsonDataSource.loadData(FILE_PATH, new TypeReference<List<Expense>>(){});
     }
 
     private void  saveExpenses() {

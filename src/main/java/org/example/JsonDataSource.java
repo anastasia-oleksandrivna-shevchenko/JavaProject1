@@ -9,14 +9,14 @@ import java.util.List;
 
 public class JsonDataSource {
     private static JsonDataSource instance;
-    private final ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
-    private JsonDataSource() {
-        objectMapper = new ObjectMapper();
+    private JsonDataSource(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
-    public static JsonDataSource getInstance() {
+    public static JsonDataSource getInstance(ObjectMapper objectMapper) {
         if (instance == null) {
-            instance = new JsonDataSource();
+            instance = new JsonDataSource(objectMapper);
         }
         return instance;
     }

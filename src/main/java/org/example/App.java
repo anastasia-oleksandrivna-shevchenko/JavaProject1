@@ -1,5 +1,6 @@
 package org.example;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -7,18 +8,17 @@ import java.util.Scanner;
 
 public class App {
 
-    private static final String CATEGORY_FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\categories.json";
-    private static final String EXPENSE_FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\expenses.json";
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        JsonDataSource jsonDataSource = JsonDataSource.getInstance();
 
-        List<Category> categories = jsonDataSource.loadData(CATEGORY_FILE_PATH, new TypeReference<List<Category>>(){});
-        List<Expense> expenses = jsonDataSource.loadData(EXPENSE_FILE_PATH, new  TypeReference<List<Expense>>(){});
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonDataSource jsonDataSource = JsonDataSource.getInstance(objectMapper);
 
-        CategoryManager categoryManager = new CategoryManager(CATEGORY_FILE_PATH, jsonDataSource, categories);
-        ExpenseManager expenseManager = new ExpenseManager(EXPENSE_FILE_PATH, jsonDataSource, expenses);
+        CategoryManager categoryManager = new CategoryManager(jsonDataSource);
+        ExpenseManager expenseManager = new ExpenseManager(jsonDataSource);
+
+        categoryManager.loadData();
+        expenseManager.loadData();
 
         while (true) {
             System.out.println("Menu:");
