@@ -1,15 +1,13 @@
 package org.example;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class CategoryManager {
     private final String FILE_PATH = "C:\\Users\\user\\IdeaProjects\\JavaProject1\\src\\main\\java\\resourses\\categories.json";
     private List<Category> categories;
     private final JsonDataSource jsonDataSource;
+
 
     public CategoryManager(JsonDataSource jsonDataSource) {
         this.jsonDataSource = jsonDataSource;

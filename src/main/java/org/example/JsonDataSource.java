@@ -2,24 +2,21 @@ package org.example;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class JsonDataSource {
-    private static JsonDataSource instance;
     private ObjectMapper objectMapper;
 
-    private JsonDataSource(ObjectMapper objectMapper) {
+
+    JsonDataSource(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
-    public static JsonDataSource getInstance(ObjectMapper objectMapper) {
-        if (instance == null) {
-            instance = new JsonDataSource(objectMapper);
-        }
-        return instance;
-    }
+
     public <T> List<T> loadData(String FILE_PATH, TypeReference<List<T>> typeReference) {
         try {
             File file = new File(FILE_PATH);

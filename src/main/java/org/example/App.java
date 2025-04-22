@@ -1,24 +1,30 @@
 package org.example;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javax.inject.Inject;
+
 public class App {
 
+    @Inject
+    ExpenseManager expenseManager;
+    @Inject
+    CategoryManager categoryManager;
+
     public static void main(String[] args) {
+
+        AppComponent appComponent = DaggerAppComponent.create();
+
+        App app = new App();
+        appComponent.inject(app);
+
+        app.categoryManager.loadData();
+        app.expenseManager.loadData();
+
+
         Scanner scanner = new Scanner(System.in);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonDataSource jsonDataSource = JsonDataSource.getInstance(objectMapper);
-
-        CategoryManager categoryManager = new CategoryManager(jsonDataSource);
-        ExpenseManager expenseManager = new ExpenseManager(jsonDataSource);
-
-        categoryManager.loadData();
-        expenseManager.loadData();
 
         while (true) {
             System.out.println("Menu:");
@@ -39,7 +45,7 @@ public class App {
                     WorkingWith name = WorkingWith.valueOf(inputName.toUpperCase());
                     switch (name) {
                         case EXPENSE:
-                            viewCategories(categoryManager);
+                            viewCategories(app.categoryManager);
                             System.out.print("Enter expense ID: ");
                             int expenseId = scanner.nextInt();
                             scanner.nextLine();
@@ -51,7 +57,7 @@ public class App {
                             System.out.print("Enter category ID for the expense: ");
                             int expenseCategoryId = scanner.nextInt();
                             scanner.nextLine();
-                            expenseManager.addExpense(new Expense(expenseId, expenseDesc, expenseAmount, expenseCategoryId));
+                            app.expenseManager.addExpense(new Expense(expenseId, expenseDesc, expenseAmount, expenseCategoryId));
                             break;
                         case CATEGORY:
                             System.out.print("Enter category ID: ");
@@ -59,7 +65,7 @@ public class App {
                             scanner.nextLine();
                             System.out.print("Enter category name: ");
                             String categoryName = scanner.nextLine().trim();
-                            categoryManager.addCategory(new Category(categoryId, categoryName));
+                            app.categoryManager.addCategory(new Category(categoryId, categoryName));
                             break;
                     }
                     break;
@@ -69,7 +75,7 @@ public class App {
                     WorkingWith updateName = WorkingWith.valueOf(inputUpdateName.toUpperCase());
                     switch (updateName) {
                         case EXPENSE:
-                            viewExpenses(expenseManager);
+                            viewExpenses(app.expenseManager);
                             System.out.print("Enter expense ID to update: ");
                             int updateExpenseId = scanner.nextInt();
                             scanner.nextLine();
@@ -81,16 +87,16 @@ public class App {
                             System.out.print("Enter new category ID: ");
                             int newCategoryId = scanner.nextInt();
                             scanner.nextLine();
-                            expenseManager.updateExpenses(updateExpenseId, newDesc, newAmount, newCategoryId);
+                            app.expenseManager.updateExpenses(updateExpenseId, newDesc, newAmount, newCategoryId);
                             break;
                         case CATEGORY:
-                            viewCategories(categoryManager);
+                            viewCategories(app.categoryManager);
                             System.out.print("Enter category ID to update: ");
                             int updateCategoryId = scanner.nextInt();
                             scanner.nextLine();
                             System.out.print("Enter new category name: ");
                             String newCategoryName = scanner.nextLine().trim();
-                            categoryManager.updateCategory(updateCategoryId, newCategoryName);
+                            app.categoryManager.updateCategory(updateCategoryId, newCategoryName);
                             break;
 
                     }
@@ -104,17 +110,17 @@ public class App {
                             System.out.println("Do you wanna view expenses by category? (yes/no)");
                             String answer = scanner.nextLine().trim();
                             if (answer.equalsIgnoreCase("yes")) {
-                                viewCategories(categoryManager);
+                                viewCategories(app.categoryManager);
                                 System.out.print("Enter category ID to view expenses: ");
                                 int selectedCategoryId = scanner.nextInt();
                                 scanner.nextLine();
-                                viewExpensesByCategory(expenseManager,  selectedCategoryId);
+                                viewExpensesByCategory(app.expenseManager,  selectedCategoryId);
                             } else {
-                                viewExpenses(expenseManager);
+                                viewExpenses(app.expenseManager);
                             }
                             break;
                         case CATEGORY:
-                            viewCategories(categoryManager);
+                            viewCategories(app.categoryManager);
                             break;
                     }
                     break;
@@ -124,24 +130,24 @@ public class App {
                     WorkingWith deleteName = WorkingWith.valueOf(inputDeleteName.toUpperCase());
                     switch (deleteName) {
                         case EXPENSE:
-                            viewExpenses(expenseManager);
+                            viewExpenses(app.expenseManager);
                             System.out.print("Enter expense ID to delete: ");
                             int deleteExpId = scanner.nextInt();
                             scanner.nextLine();
-                            expenseManager.deleteExpenses(deleteExpId);
+                            app.expenseManager.deleteExpenses(deleteExpId);
                             break;
                         case CATEGORY:
-                            viewCategories(categoryManager);
+                            viewCategories(app.categoryManager);
                             System.out.print("Enter category ID to delete: ");
                             int deleteCatId = scanner.nextInt();
                             scanner.nextLine();
-                            categoryManager.deleteCategory(deleteCatId);
+                            app.categoryManager.deleteCategory(deleteCatId);
                             break;
 
                     }
                     break;
                 case STATISTICS:
-                    viewStatistics(categoryManager, expenseManager);
+                    viewStatistics(app.categoryManager, app.expenseManager);
                     break;
                 case EXIT:
                     System.out.println("Exiting...");
